@@ -1,6 +1,7 @@
 import logging
 import mimetypes
 import shutil
+import urllib.parse
 
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -23,12 +24,11 @@ def index(request):
 
 def download(request, pk):
     """clickでdownloadを実行"""
-    # FIXME: filenameに日本語名を含んでいる場合ダウンロードできない
     uploaded_music = get_object_or_404(Music, pk=pk) 
     filename = uploaded_music.name
     guessed_type = mimetypes.guess_type(filename)[0]
     response = HttpResponse(content_type=guessed_type or 'application/octet-stream')
-    response['Content-Disposition'] = f'attachment; filename={filename}' # force download
+    response['Content-Disposition'] = f'attachment; filename={urllib.parse.quote(filename)}' # force download
     shutil.copyfileobj(uploaded_music.file, response) # copy file to response
     return response
 
