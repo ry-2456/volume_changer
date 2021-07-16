@@ -13,11 +13,8 @@ def index(request):
     if request.method == 'POST':
         form = UploadMusicForm(request.POST, request.FILES)
         if form.is_valid():
-            # music modelにuploadされたfileのnameを代入
-            music = form.save(commit=False)
-            music.name = form.cleaned_data['file'].name
-            music.save()
-            request.session['uploaded_music_pk'] = music.pk
+            music_list = form.save()
+            request.session['uploaded_music_pk_list'] = [m.pk for m in music_list]
             return redirect('vca:download_list')
     else:
         form = UploadMusicForm()
@@ -26,11 +23,12 @@ def index(request):
 
 def download(request, pk):
     """clickでdownloadを実行"""
+    # FIXME: filenameに日本語名を含んでいる場合ダウンロードできない
     uploaded_music = get_object_or_404(Music, pk=pk) 
     filename = uploaded_music.name
     guessed_type = mimetypes.guess_type(filename)[0]
     response = HttpResponse(content_type=guessed_type or 'application/octet-stream')
-    response['Content-Disposition'] = f'attachment; filename={filename}' # enforce download
+    response['Content-Disposition'] = f'attachment; filename={filename}' # force download
     shutil.copyfileobj(uploaded_music.file, response) # copy file to response
     return response
 
@@ -38,8 +36,8 @@ def download_list(request):
     """downloadできるfileのlist"""
     # server側でdonwload機能を実装するのがいいのか?
     context = {}
-    uploaded_music_pk = request.session.get('uploaded_music_pk')
-    if uploaded_music_pk:
-        uploaded_music = Music.objects.get(pk=uploaded_music_pk)
-        context['uploaded_music'] = uploaded_music
+    uploaded_music_pk_list = request.session.get('uploaded_music_pk_list')
+    if uploaded_music_pk_list:
+        uploaded_music_list = [Music.objects.get(pk=pk) for pk in uploaded_music_pk_list]
+        context['uploaded_music_list'] = uploaded_music_list
     return render(request, 'volume_changer_app/download_list.html', context)

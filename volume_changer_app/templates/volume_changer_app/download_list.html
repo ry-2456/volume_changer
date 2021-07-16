@@ -3,12 +3,15 @@
 
 {% block content %}
 Download
-{% if uploaded_music %}
-  <p>You uploaded {{ uploaded_music.file.name }}</p>
-  <div>
-    <a href="{% url 'vca:download' pk=uploaded_music.pk %}">
-      {{ uploaded_music.name }}
-    </a>
-  </div>
+{% if uploaded_music_list %}
+  {% for music in uploaded_music_list %}
+    <div>
+      <a href="{% url 'vca:download' pk=music.pk %}">
+        {{ music.name }}
+      </a>
+    </div>
+  {% endfor %}
 {% endif %}
+
+<div><a href="{% url 'vca:index' %}">upload new music</a></div>
 {% endblock %}
