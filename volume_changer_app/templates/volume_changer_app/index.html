@@ -3,9 +3,24 @@
 {% block title %}Index Page{% endblock %}
 
 {% block content %}
+
+{% comment %} ダウンロードリスト {% endcomment %}
+<div>
+  {% if uploaded_music_list %}
+    <p>download list</p>
+    <ul>
+      {% for music in uploaded_music_list %}
+        <li><a href=" {% url 'vca:download' pk=music.pk %}">{{ music.name }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</div>
+
+<div>
   <form action="" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Upload</button>
   </form>
+</div>
 {% endblock %}
