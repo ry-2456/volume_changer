@@ -45,9 +45,9 @@ def index(request):
                 if not save_path.parent.exists():
                     save_path.parent.mkdir()
 
-                # .wavとして保存 (audiofile(soundfile)がwav,flac,oggのみをサポート)
+                # .flacとして保存 (audiofile(soundfile)がwav,flac,oggのみをサポート)
                 audiofile.write(
-                    save_path.with_suffix('.wav'), 
+                    save_path.with_suffix('.flac'), 
                     loudness_normalized_audio.T, 
                     sampling_rate
                 )
